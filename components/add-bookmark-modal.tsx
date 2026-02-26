@@ -14,7 +14,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
-import { Plus, Loader2, LinkIcon } from 'lucide-react'
+import { Plus, Loader2, LinkIcon, Sparkles } from 'lucide-react'
 
 interface AddBookmarkModalProps {
   onAddBookmark: (bookmark: {
@@ -33,7 +33,6 @@ export function AddBookmarkModal({ onAddBookmark }: AddBookmarkModalProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
     if (!url.trim()) return
 
     setIsLoading(true)
@@ -50,7 +49,6 @@ export function AddBookmarkModal({ onAddBookmark }: AddBookmarkModalProps) {
         customSummary: customSummary.trim() || undefined
       })
 
-      // Reset form
       setUrl('')
       setTags('')
       setCustomSummary('')
@@ -74,22 +72,35 @@ export function AddBookmarkModal({ onAddBookmark }: AddBookmarkModalProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="gap-2">
+        <Button className="gap-2 shadow-sm hover:shadow-md transition">
           <Plus className="h-4 w-4" />
           Add Bookmark
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[525px]">
-        <DialogHeader>
-          <DialogTitle>Add New Bookmark</DialogTitle>
-          <DialogDescription>
-            Save a link with automatic summary generation. We'll fetch the title and favicon for you.
+
+      <DialogContent className="sm:max-w-[520px] rounded-2xl p-6">
+        {/* Header */}
+        <DialogHeader className="space-y-3">
+          <div className="flex items-center gap-2">
+            <div className="p-2 rounded-lg bg-primary/10">
+              <Sparkles className="h-5 w-5 text-primary" />
+            </div>
+            <DialogTitle className="text-xl font-semibold">
+              Add New Bookmark
+            </DialogTitle>
+          </div>
+
+          <DialogDescription className="text-sm text-muted-foreground">
+            Save a link and we’ll auto-generate a clean summary, title and icon for you.
           </DialogDescription>
         </DialogHeader>
-        
-        <form onSubmit={handleSubmit} className="space-y-4">
+
+        {/* FORM */}
+        <form onSubmit={handleSubmit} className="space-y-5 mt-4">
+
+          {/* URL */}
           <div className="space-y-2">
-            <Label htmlFor="url">URL *</Label>
+            <Label htmlFor="url">URL</Label>
             <div className="relative">
               <LinkIcon className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
@@ -98,44 +109,51 @@ export function AddBookmarkModal({ onAddBookmark }: AddBookmarkModalProps) {
                 placeholder="https://example.com/article"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
-                className="pl-10"
+                className="pl-10 focus-visible:ring-2 focus-visible:ring-primary"
                 required
               />
             </div>
+
             {url && !isValidUrl(url) && (
-              <p className="text-sm text-destructive">Please enter a valid URL</p>
+              <p className="text-xs text-red-500">
+                Please enter a valid URL
+              </p>
             )}
           </div>
-          
+
+          {/* TAGS */}
           <div className="space-y-2">
             <Label htmlFor="tags">Tags</Label>
             <Input
               id="tags"
               type="text"
-              placeholder="technology, ai, programming (comma-separated)"
+              placeholder="ai, productivity, design"
               value={tags}
               onChange={(e) => setTags(e.target.value)}
             />
             <p className="text-xs text-muted-foreground">
-              Separate multiple tags with commas
+              Separate tags using commas
             </p>
           </div>
-          
+
+          {/* SUMMARY */}
           <div className="space-y-2">
-            <Label htmlFor="customSummary">Custom Summary (Optional)</Label>
+            <Label htmlFor="customSummary">Custom Summary</Label>
             <Textarea
               id="customSummary"
-              placeholder="Add your own summary or notes about this link..."
+              placeholder="Write your own notes or leave blank for AI summary..."
               value={customSummary}
               onChange={(e) => setCustomSummary(e.target.value)}
               rows={3}
+              className="resize-none"
             />
             <p className="text-xs text-muted-foreground">
-              Leave empty to auto-generate summary using Jina AI
+              If empty, summary will be generated using AI
             </p>
           </div>
-          
-          <DialogFooter>
+
+          {/* FOOTER */}
+          <DialogFooter className="pt-2">
             <Button
               type="button"
               variant="outline"
@@ -144,8 +162,10 @@ export function AddBookmarkModal({ onAddBookmark }: AddBookmarkModalProps) {
             >
               Cancel
             </Button>
+
             <Button
               type="submit"
+              className="min-w-[140px]"
               disabled={isLoading || !url.trim() || !isValidUrl(url)}
             >
               {isLoading ? (
